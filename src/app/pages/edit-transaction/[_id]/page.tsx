@@ -31,7 +31,13 @@ const formSchema = z.object({
   category: z.enum(["Food", "Transport", "Utilities", "Entertainment", "Other"]),
 });
 
-export default function EditTransaction({ params }: { params: { _id: string } }) {
+type PageProps = {
+  params: {
+    _id: string;
+  };
+};
+
+export default function EditTransaction({ params }:  PageProps) {
 
   const router = useRouter();
 
