@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 
 const formSchema = z.object({
-  _id: z.string().optional(), 
+  _id: z.string().optional(),
   amount: z.coerce.number().min(0, "Amount must be greater than or equal to 0"),
   date: z.date(),
   description: z.string().min(1, "Description is required"),
@@ -37,10 +37,8 @@ type PageProps = {
   };
 };
 
-export default function EditTransaction({ params }:  PageProps) {
-
+export default function Page({ params }: PageProps) {
   const router = useRouter();
-
   const id = params.id;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -53,26 +51,46 @@ export default function EditTransaction({ params }:  PageProps) {
     },
   });
 
+  // Fetch transaction data on mount
+  useEffect(() => {
+    const fetchTransaction = async () => {
+      try {
+        const res = await fetch(`/api/transaction/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch transaction");
+
+        const data = await res.json();
+
+        // Pre-fill form with existing transaction data
+        form.reset({
+          _id: data._id,
+          amount: data.amount,
+          date: new Date(data.date),
+          description: data.description,
+          category: data.category,
+        });
+      } catch (error) {
+        console.error("Failed to load transaction:", error);
+      }
+    };
+
+    fetchTransaction();
+  }, [id, form]);
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     const formattedData = {
       ...data,
-      _id : id,
+      _id: id,
       date: data.date.toISOString(),
     };
 
-    console.log("Submitting Edit:", formattedData);
-
     const res = await fetch(`/api/edit-transaction`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formattedData),
     });
 
     if (res.ok) {
-      console.log("Edit successful");
-      router.replace('/');
+      router.replace("/");
     } else {
       console.error("Edit failed");
     }
