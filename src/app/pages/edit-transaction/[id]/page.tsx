@@ -33,7 +33,7 @@ const formSchema = z.object({
 
 type PageProps = {
   params: {
-    _id: string;
+    id: string;
   };
 };
 
@@ -41,7 +41,7 @@ export default function EditTransaction({ params }:  PageProps) {
 
   const router = useRouter();
 
-  const id = params._id;
+  const id = params.id;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
