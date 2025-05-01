@@ -37,7 +37,7 @@ export default function Home() {
     <main className="min-h-screen grid place-items-center p-8 sm:p-20 font-sans">
       <div className="container mx-auto py-10">
         <Button variant={'secondary'} className='bg-violet-400 my-1.5' >
-          <Link href={'/pages/add-transaction'} >Add Transaction</Link>
+          <Link href={'/add-transaction'} >Add Transaction</Link>
         </Button>
         <DataTable columns={columns} data={data} />
       </div>
