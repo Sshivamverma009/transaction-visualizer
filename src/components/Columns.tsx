@@ -3,14 +3,15 @@
 import { ColumnDef } from "@tanstack/react-table"
 
 
+// in components/Columns.ts
 export type Payment = {
-    id: string
-    amount: number
-    date: Date
-    description: String
-    category: "Food" | "Transport" | "Utilities" | "Entertainment" | "Other"
-    action: () => {}
-}
+    _id: string;
+    amount: number;
+    date: string;
+    description: string;
+    category: "Food" | "Transport" | "Utilities" | "Entertainment" | "Other";
+  };
+  
 
 export const columns: ColumnDef<Payment>[] = [
     {

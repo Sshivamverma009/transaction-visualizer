@@ -6,12 +6,10 @@ export async function GET(req: NextRequest) {
   try {
     await database();
 
-    const response = await Expense.find().select("categoricalExpense");
+    const expenses = await Expense.find().select("categoricalExpense");
 
-    console.log("response :", response);
-    return NextResponse.json({ response: response }, { status: 200 });
+    return NextResponse.json({ expenses }, { status: 200 });
   } catch (error: any) {
-    console.log("Error :", error.message);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

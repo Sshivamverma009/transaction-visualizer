@@ -20,23 +20,24 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-}
-
-export type Data = {
+// Constrain TData to always have an _id property
+interface Data {
   _id: string;
   amount: number;
-  date: Date;
+  date: string; // Date as string
   description: string;
   category: "Food" | "Transport" | "Utilities" | "Entertainment" | "Other";
-};
+}
 
-export function DataTable<TData, TValue>({
+interface DataTableProps<TData> {
+  columns: ColumnDef<TData, any>[];  // Adjusted for TData
+  data: TData[];  // Data should match TData
+}
+
+export function DataTable<TData extends { _id: string }>({  // Constraining TData to include _id
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const table = useReactTable({
     data,
     columns,
@@ -60,7 +61,7 @@ export function DataTable<TData, TValue>({
         return;
       }
 
-      router.refresh();
+      router.refresh(); // Ensure this is supported in your Next.js version
     } catch (error: any) {
       console.error("Error deleting transaction:", error.message);
     }

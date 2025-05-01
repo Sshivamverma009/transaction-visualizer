@@ -24,16 +24,21 @@ import {
 } from "@/components/ui/select";
 
 const formSchema = z.object({
-  _id: z.string().optional(), 
+  _id: z.string().optional(),
   amount: z.coerce.number().min(0, "Amount must be greater than or equal to 0"),
   date: z.date(),
   description: z.string().min(1, "Description is required"),
   category: z.enum(["Food", "Transport", "Utilities", "Entertainment", "Other"]),
 });
 
-export default function EditTransaction() {
+interface EditTransactionProps {
+  id: string;
+}
 
+export default function EditTransaction({ id }: EditTransactionProps) {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,33 +53,33 @@ export default function EditTransaction() {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     const formattedData = {
       ...data,
+      _id: id,
       date: data.date.toISOString(),
     };
 
-    console.log("Submitting Edit:", formattedData);
-
     const res = await fetch(`/api/edit-transaction`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formattedData),
     });
 
     if (res.ok) {
-      console.log("Edit successful");
-      router.replace('/');
+      router.replace("/");
     } else {
-      console.error("Edit failed");
+      setError("Failed to update transaction. Please try again.");
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container flex flex-col justify-center align-middle w-auto p-5 border-2 border-black rounded-2xl">
       <h2 className="text-2xl mb-2 underline">Edit Transaction</h2>
+      {error && <div className="text-red-500 mb-4">{error}</div>}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Amount */}
           <FormField
             control={form.control}
             name="amount"
@@ -95,8 +100,6 @@ export default function EditTransaction() {
               </FormItem>
             )}
           />
-
-          {/* Date */}
           <FormField
             control={form.control}
             name="date"
@@ -114,8 +117,6 @@ export default function EditTransaction() {
               </FormItem>
             )}
           />
-
-          {/* Description */}
           <FormField
             control={form.control}
             name="description"
@@ -129,8 +130,6 @@ export default function EditTransaction() {
               </FormItem>
             )}
           />
-
-          {/* Category */}
           <FormField
             control={form.control}
             name="category"
@@ -155,7 +154,6 @@ export default function EditTransaction() {
               </FormItem>
             )}
           />
-
           <Button type="submit">Update</Button>
         </form>
       </Form>

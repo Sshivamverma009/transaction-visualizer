@@ -1,28 +1,27 @@
 import { database } from "@/lib/dbConnect";
-import { ObjectId } from "mongoose";
 import { Transaction, Expense } from "@/models/models";
 import { NextRequest, NextResponse } from "next/server";
 import { startOfMonth } from "date-fns";
 
+// PUT method
 export async function PUT(req: NextRequest) {
   try {
     await database();
 
     const { _id, amount, date, description, category } = await req.json();
 
-    console.log(req);
-
-    if (!_id) {
-      console.log("Transaction ID is required");
+    // Validate the inputs
+    if (!_id || !amount || !date || !category) {
       return NextResponse.json(
-        { message: "Transaction ID is required" },
+        { message: "All fields (_id, amount, date, category) are required" },
         { status: 400 }
       );
     }
+
+    // Find the old transaction
     const oldTransaction = await Transaction.findById(_id);
 
     if (!oldTransaction) {
-      console.log("Transaction not found");
       return NextResponse.json(
         { message: "Transaction not found" },
         { status: 404 }
@@ -31,6 +30,7 @@ export async function PUT(req: NextRequest) {
 
     const monthStart = startOfMonth(new Date(date));
 
+    // Update Expense (subtracting old transaction amount)
     await Expense.updateOne(
       {
         month: monthStart,
@@ -44,6 +44,7 @@ export async function PUT(req: NextRequest) {
       }
     );
 
+    // Update the Transaction with new values
     await Transaction.findByIdAndUpdate(_id, {
       amount,
       date,
@@ -51,6 +52,7 @@ export async function PUT(req: NextRequest) {
       category,
     });
 
+    // Update Expense (adding new transaction amount)
     const updated = await Expense.updateOne(
       { month: monthStart, "categoricalExpense.category": category },
       {
@@ -74,13 +76,12 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    console.log("Transaction and MonthlyExpense updated successfully");
+    // Send success response
     return NextResponse.json(
       { message: "Transaction and MonthlyExpense updated successfully" },
       { status: 200 }
     );
   } catch (error: any) {
-    console.log("Error ::", error.message);
     return NextResponse.json({ message: error.message }, { status: 400 });
   }
 }
