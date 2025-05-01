@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,7 +37,6 @@ interface EditTransactionProps {
 
 export default function EditTransaction({ id }: EditTransactionProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -70,9 +69,6 @@ export default function EditTransaction({ id }: EditTransactionProps) {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="container flex flex-col justify-center align-middle w-auto p-5 border-2 border-black rounded-2xl">
